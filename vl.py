@@ -10,7 +10,10 @@ import pandas as pd
 import numpy as np
 import googlemaps
 
-GOOGLEAPI = os.environ['GOOGLEAPI']
+try:
+    GOOGLEAPI = os.environ['GOOGLEAPI']
+except KeyError:
+    GOOGLEAPI=""
 
 ox.config(log_file=True, log_console=True, use_cache=True)
 gmaps = googlemaps.Client(key=GOOGLEAPI)
@@ -89,7 +92,7 @@ def get_waypoints_by_lat_long(lat, long, network_type='walk', maxtime=15, vagas_
         nc = ['k' if node  == dest_node else nc[i] for (i, node) in enumerate(G.nodes())] # Make dest node black
         ns = [30 if node in node_colors else 0 for node in G.nodes()]
         ns = [500 if node  == dest_node else ns[i] for (i, node) in enumerate(G.nodes())] # Make dest node large
-        ox.plot_graph(G, fig_height=8, node_color=nc, node_size=ns, node_alpha=0.8, node_zorder=2)       
+        #ox.plot_graph(G, fig_height=8, node_color=nc, node_size=ns, node_alpha=0.8, node_zorder=2)       
     
     ##################################################
     # Compute all routes to every place, get line segments
