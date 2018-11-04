@@ -16,11 +16,23 @@ ox.config(log_file=True, log_console=True, use_cache=True)
 gmaps = googlemaps.Client(key=GOOGLEAPI)
 
 def remove_adjacent(nums):
-    a = nums[:1]
-    for item in nums[1:]:
-        if item != a[-1]:
-            a.append(item)
-        return a
+    i = 1
+    while i < len(nums):
+        if nums[i] == nums[i-1]:
+            nums.pop(i)
+            i -= 1
+        i += 1
+    return nums
+
+def is_subline(subline, superline):
+    n = len(subline)
+    shifts = len(superline) - len(subline)
+    if shifts < 0:
+        return False
+    for i in range(shifts):
+        if subline == superline[i:n+i]:
+            return True
+    return False
 
 def get_waypoints_by_address(address, network_type='walk', maxtime=15, gmaps=None, vagas_df=None, plot=False):
     if gmaps is None:
@@ -64,7 +76,7 @@ def get_waypoints_by_lat_long(lat, long, network_type='walk', maxtime=15, vagas_
     # Compute `isochrones`. Ensures we are within
     # walking distance
     ##################################################
-    trip_times = np.linspace(5, maxtime, num=10) #in minutes
+    trip_times = np.linspace(2, maxtime, num=10) #in minutes
     iso_colors = ox.get_colors(n=len(trip_times), cmap='Reds', start=0.3, return_hex=True)
     node_colors = {}
     for trip_time, color in zip(sorted(trip_times, reverse=True), iso_colors):
@@ -114,6 +126,10 @@ def get_waypoints_by_lat_long(lat, long, network_type='walk', maxtime=15, vagas_
                 #print("line")
                 #print(line)
                 lines_route += line
-
-        lines.append(remove_adjacent(lines_route))
+        lines_route = remove_adjacent(lines_route)
+        for prev_rout in lines:
+            if is_subline(lines_route, prev_rout):
+                continue
+        lines = [item for item in lines if not is_subline(item, lines_route)]
+        lines.append(lines_route)
     return lines
